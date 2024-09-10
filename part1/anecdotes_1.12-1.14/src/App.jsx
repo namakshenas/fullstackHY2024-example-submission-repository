@@ -8,6 +8,13 @@ const getMax = (arr) => {
   return Object.keys(arr).reduce((a, b) => (arr[a] > arr[b] ? a : b));
 }
 
+const Anecdote = ({ text, vote }) => (
+  <>
+    {text}
+    <div>has {vote} votes</div>
+  </>
+)
+
 const anecdotes = [
   'If it hurts, do it more often.',
   'Adding manpower to a late software project makes it later!',
@@ -40,12 +47,11 @@ const App = () => {
   return (
     <div>
       <h1>Anecdote of the day</h1>
-      <p>{anecdotes[selected]}</p>
-      <p>Has vote {copyPoints[selected]}</p>
+      <Anecdote text={anecdotes[selected]} vote={copyPoints[selected]} />
       <button onClick={handleSelectedClick}> next anecdote </button>
       <button onClick={handleVoteClick}> vote </button>
       <h1>Anecdote with most votes</h1>
-      <p>{anecdotes[getMax(copyPoints)]}</p>
+      <Anecdote text={anecdotes[getMax(copyPoints)]} vote={copyPoints[getMax(copyPoints)]} />
     </div>
   )
 }
