@@ -5,22 +5,28 @@ const App = () => {
     { name: 'Arto Hellas' }
   ]) 
   const [newName, setNewName] = useState('')
-  const [filter, setFilter] = useState('')
 
   const addPerson = (event) => {
     event.preventDefault()
     const nameObject = {
-      name: newName, // use 'name' instead of 'content'
+      name: newName,
       id: newName,
     }
 
+    const nameExists = persons.some(person => person.name.toLowerCase() === newName.toLowerCase())
+    
+    if (nameExists) {
+      alert(`${newName} is already added to the phonebook.`)
+      setNewName('') 
+      return
+    } 
+
     setPersons(persons.concat(nameObject))
-    setNewName('')
+    setNewName('') 
   }
 
-  const personsToShow = persons.filter(person => 
-    person.name.toLowerCase().includes(filter.toLowerCase())
-  )
+  const personsToShow = persons.filter(person => person.name)
+
 
   const Persons = ({ personsToShow }) => {
     return (
