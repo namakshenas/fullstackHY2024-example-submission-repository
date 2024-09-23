@@ -3,19 +3,16 @@ import axios from 'axios'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import personsService from './services/persons'
 
 const App = () => {
-  const [persons, setPersons] = useState([]) 
+  const [persons, setPersons] = useState([])
 
   // only initial persons are fetched using useEffect
   useEffect(() => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
-      })
+    personsService.getAll().then((initialPersons) => setPersons(initialPersons))
+    console.log('promise fulfilled')
   }, [])
 
   const [newName, setNewName] = useState('')
@@ -31,25 +28,31 @@ const App = () => {
     }
 
     const nameExists = persons.some(person => person.name.toLowerCase() === newName.toLowerCase())
-    
+
     if (nameExists) {
       alert(`${newName} is already added to the phonebook.`)
-      setNewName('')
-      setNewNumber('') 
       return
-    } 
+    }
 
-    setPersons(persons.concat(nameObject))
-    setNewName('')
-    setNewNumber('') 
+
+     personsService
+      .create(nameObject)
+      .then((person) => {
+        setPersons(persons.concat(person))
+      })
+      .catch((error) => {
+        notify(error.response.data.error, 'alert')
+        console.log(error.response.data)
+      })
+
   }
 
   const personsToShow =
     filter.length === 0
       ? persons
       : persons.filter((p) =>
-          p.name.toLowerCase().includes(filter.toLowerCase())
-        )
+        p.name.toLowerCase().includes(filter.toLowerCase())
+      )
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
@@ -61,6 +64,17 @@ const App = () => {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value)
+  }
+
+  const deletePerson = (id) => {
+    const person = persons.find((p) => p.id === id)
+    const result = window.confirm(`Delete ${person.name}?`)
+    if (result) {
+      personsService.remove(id).then(() => {
+        setPersons(persons.filter((p) => p.id !== id))
+      }
+      )
+    }
   }
 
   return (
@@ -76,7 +90,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons personsToShow={personsToShow} />
+      <Persons personsToShow={personsToShow} deletePerson={deletePerson}/>
     </div>
   )
 }
