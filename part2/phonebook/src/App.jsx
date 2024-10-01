@@ -93,11 +93,22 @@ const App = () => {
     const person = persons.find((p) => p.id === id)
     const result = window.confirm(`Delete ${person.name}?`)
     if (result) {
-      personsService.remove(id).then(() => {
-        setPersons(persons.filter((p) => p.id !== id))
-      }
-      )
+      personsService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter((p) => p.id !== id))
+          notify(`Deleted ${person.name}`, 'success')
+        })
+        .catch((error) => {
+          notify(`Information of ${person.name} has already been removed from the server`, 'alert')
+          setPersons(persons.filter((p) => p.id !== id))
+          console.log(error.response.data)
+        })
     }
+    
+    
+    
+    
   }
 
   return (
