@@ -4,9 +4,11 @@ import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import personsService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
+  const [message, setMessage] = useState(null)
 
   // only initial persons are fetched using useEffect
   useEffect(() => {
@@ -14,6 +16,13 @@ const App = () => {
     personsService.getAll().then((initialPersons) => setPersons(initialPersons))
     console.log('promise fulfilled')
   }, [])
+
+  const notify = (msg, type) => {
+    setMessage({ msg, type })
+    setTimeout(() => {
+      setMessage(null)
+    }, 5000)
+  }
 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
@@ -51,7 +60,8 @@ const App = () => {
      personsService
       .create(nameObject)
       .then((person) => {
-        setPersons(persons.concat(person))
+        setPersons(persons.concat(person)),
+        notify(`Added ${newName}`, 'success')
       })
       .catch((error) => {
         notify(error.response.data.error, 'alert')
@@ -93,6 +103,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter value={filter} handleFilterChange={handleFilterChange} />
       <h2>Add new</h2>
       <PersonForm
