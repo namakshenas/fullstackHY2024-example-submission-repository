@@ -30,7 +30,20 @@ const App = () => {
     const nameExists = persons.some(person => person.name.toLowerCase() === newName.toLowerCase())
 
     if (nameExists) {
-      alert(`${newName} is already added to the phonebook.`)
+      const result = window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`)
+      if (result) {
+        const person = persons.find((p) => p.name.toLowerCase() === newName.toLowerCase())
+        const changedPerson = { ...person, number: newNumber }
+        personsService
+          .update(person.id, changedPerson)
+          .then((returnedPerson) => {
+            setPersons(persons.map((p) => (p.id !== person.id ? p : returnedPerson)))
+          })
+          .catch((error) => {
+            notify(error.response.data.error, 'alert')
+            console.log(error.response.data)
+          })
+      }
       return
     }
 
